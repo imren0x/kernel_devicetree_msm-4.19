@@ -1708,21 +1708,6 @@
 		interrupts = <GIC_SPI 136 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 220 IRQ_TYPE_LEVEL_HIGH>, <GIC_SPI 134 IRQ_TYPE_LEVEL_HIGH>;
 		interrupt-names = "hs_phy_irq", "ss_phy_irq", "pwr_event_irq";
 
-		USB3_GDSC-supply = <&gdsc_usb30>;
-		qcom,reset-ep-after-lpm-resume;
-		qcom,msm-bus,name = "usb3";
-		qcom,msm-bus,num-cases = <3>;
-		qcom,msm-bus,num-paths = <1>;
-		qcom,msm-bus,vectors-KBps =
-					<61 512 0 0>,
-					<61 512 240000 800000>,
-					<61 512 240000 800000>;
-
-		/* CPU-CLUSTER-WFI-LVL latency +1 */
-		qcom,pm-qos-latency = <2>;
-
-		qcom,dwc-usb3-msm-tx-fifo-size = <21288>;
-
 		clocks = <&clock_gcc clk_gcc_usb30_master_clk>,
 			<&clock_gcc clk_gcc_pcnoc_usb3_axi_clk>,
 			<&clock_gcc clk_gcc_usb30_mock_utmi_clk>,
@@ -1733,11 +1718,28 @@
 		clock-names = "core_clk", "iface_clk", "utmi_clk",
 				"sleep_clk", "xo", "cfg_ahb_clk";
 
+		resets = <&clock_gcc GCC_USB_30_BCR>;
+		reset-names = "core_reset";
+
+		USB3_GDSC-supply = <&gdsc_usb30>;
+		dpdm-supply = <&qusb_phy>;
+
 		qcom,core-clk-rate = <133333333>; /* NOM */
 		qcom,core-clk-rate-hs = <60000000>; /* LOW SVS */
 
-		resets = <&clock_gcc GCC_USB_30_BCR>;
-		reset-names = "core_reset";
+		qcom,reset-ep-after-lpm-resume;
+		qcom,dwc-usb3-msm-tx-fifo-size = <21288>;
+
+		/* CPU-CLUSTER-WFI-LVL latency +1 */
+		qcom,pm-qos-latency = <2>;
+		
+		qcom,msm-bus,name = "usb3";
+		qcom,msm-bus,num-cases = <3>;
+		qcom,msm-bus,num-paths = <1>;
+		qcom,msm-bus,vectors-KBps =
+					<61 512 0 0>,
+					<61 512 240000 800000>,
+					<61 512 240000 800000>;
 
 		dwc3@7000000 {
 			compatible = "snps,dwc3";
@@ -1751,6 +1753,7 @@
 			snps,usb2-l1-disable;
 			snps,hird-threshold = /bits/ 8 <0x0>;
 			maximum-speed = "super-speed";
+			dr_mode = "otg";
 		};
 
 		qcom,usbbam@7104000 {
